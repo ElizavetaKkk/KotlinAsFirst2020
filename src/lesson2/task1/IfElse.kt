@@ -174,12 +174,12 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
  * Если пересечения нет, вернуть -1.
  */
 
-fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int {
-    return if (b < c || d < a) -1
-    else if (b == c || d == a || a == b || c == d) 0
-    else if (a <= c)
-        if (b >= d) d - c
+fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int =
+    when {
+        b < c || d < a -> -1
+        b == c || d == a || a == b || c == d -> 0
+        a <= c -> if (b >= d) d - c
         else b - c
-    else if (d >= b) b - a
-    else d - a
-}
+        else -> if (d >= b) b - a
+        else d - a
+    }
