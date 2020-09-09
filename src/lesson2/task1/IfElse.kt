@@ -69,13 +69,11 @@ fun minBiRoot(a: Double, b: Double, c: Double): Double {
  * Мой возраст. Для заданного 0 < n < 200, рассматриваемого как возраст человека,
  * вернуть строку вида: «21 год», «32 года», «12 лет».
  */
-fun ageDescription(age: Int): String {
-    return if (age % 100 / 10 == 1) "$age лет"
-    else when (age % 10) {
-        1 -> "$age год"
-        in 2..4 -> "$age года"
-        else -> "$age лет"
-    }
+fun ageDescription(age: Int): String = when {
+    age % 100 / 10 == 1 -> "$age лет"
+    age % 10 == 1 -> "$age год"
+    age % 10 in 2..4 -> "$age года"
+    else -> "$age лет"
 }
 
 /**
@@ -113,11 +111,17 @@ fun whichRookThreatens(
     kingX: Int, kingY: Int,
     rookX1: Int, rookY1: Int,
     rookX2: Int, rookY2: Int
-): Int = when {
-    ((kingX == rookX1) || (kingX == rookX2)) && ((kingY == rookY1) || (kingY == rookY2)) -> 3
-    (kingX == rookX1) || (kingY == rookY1) -> 1
-    (kingX == rookX2) || (kingY == rookY2) -> 2
-    else -> 0
+): Int {
+    val rx1 = kingX == rookX1
+    val rx2 = kingX == rookX2
+    val ry1 = kingY == rookY1
+    val ry2 = kingY == rookY2
+    return when {
+        (rx1 || rx2) && (ry1 || ry2) -> 3
+        rx1 || ry1 -> 1
+        rx2 || ry2 -> 2
+        else -> 0
+    }
 }
 
 /**
@@ -150,14 +154,14 @@ fun rookOrBishopThreatens(
  * Если такой треугольник не существует, вернуть -1.
  */
 fun triangleKind(a: Double, b: Double, c: Double): Int {
-    return if (a >= b + c || b >= a + c || c >= b + a) -1
-    else {
-        val cos1 = (b * b + c * c - a * a) / 2 * b * c
-        val cos2 = (b * b - c * c + a * a) / 2 * b * a
-        val cos3 = (-b * b + c * c + a * a) / 2 * a * c
-        if (cos1 < 0 || cos2 < 0 || cos3 < 0) 2
-        else if (cos1 == 0.0 || cos2 == 0.0 || cos3 == 0.0) 1
-        else 0
+    val cos1 = (b * b + c * c - a * a) / 2 * b * c
+    val cos2 = (b * b - c * c + a * a) / 2 * b * a
+    val cos3 = (-b * b + c * c + a * a) / 2 * a * c
+    return when {
+        a >= b + c || b >= a + c || c >= b + a -> -1
+        cos1 < 0 || cos2 < 0 || cos3 < 0 -> 2
+        cos1 == 0.0 || cos2 == 0.0 || cos3 == 0.0 -> 1
+        else -> 0
     }
 }
 
