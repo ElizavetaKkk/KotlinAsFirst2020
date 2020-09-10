@@ -241,7 +241,23 @@ fun convert(n: Int, base: Int): List<Int> = TODO()
  * Использовать функции стандартной библиотеки, напрямую и полностью решающие данную задачу
  * (например, n.toString(base) и подобные), запрещается.
  */
-fun convertToString(n: Int, base: Int): String = TODO()
+fun convertToString(n: Int, base: Int): String {
+    if (n < base)
+        return if (n < 10) "$n"
+        else (87 + n).toChar().toString()
+    var n1 = n
+    var a: Int
+    var s = ""
+    while (n1 >= base) {
+        a = n1 % base
+        if (a < 10) s += "$a"
+        else s += (87 + a).toChar()
+        n1 /= base
+    }
+    if (n1 < 10) s += "$n1"
+    else s += (87 + n1).toChar()
+    return s.reversed()
+}
 
 /**
  * Средняя (3 балла)
