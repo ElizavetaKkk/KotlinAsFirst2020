@@ -78,7 +78,7 @@ fun digitNumber(n: Int): Int {
     var x = 0
     var n1 = n
     if (n == 0) return 1
-    while (n1 > 0) {
+    while (n1 != 0) {
         n1 /= 10
         x++
     }
@@ -91,8 +91,16 @@ fun digitNumber(n: Int): Int {
  * Найти число Фибоначчи из ряда 1, 1, 2, 3, 5, 8, 13, 21, ... с номером n.
  * Ряд Фибоначчи определён следующим образом: fib(1) = 1, fib(2) = 1, fib(n+2) = fib(n) + fib(n+1)
  */
-fun fib(n: Int): Int = if (n == 1 || n == 2) 1
-else fib(n - 1) + fib(n - 2)
+fun fib(n: Int): Int {
+    return if (n <= 1) 1
+    else {
+        val dp = IntArray(n + 1)
+        dp[1] = 1
+        dp[2] = 1
+        for (i in 3..n) dp[i] = dp[i - 1] + dp[i - 2]
+        dp[n]
+    }
+}
 
 /**
  * Простая (2 балла)
@@ -246,17 +254,7 @@ fun hasDifferentDigits(n: Int): Boolean {
  * Подумайте, как добиться более быстрой сходимости ряда при больших значениях x.
  * Использовать kotlin.math.sin и другие стандартные реализации функции синуса в этой задаче запрещается.
  */
-fun sin(x: Double, eps: Double): Double {
-    var s = x
-    var t = x
-    var n = 2
-    while (abs(t) > eps) {
-        t = -t * x * x / (n * (n + 1))
-        s += t
-        n += 2
-    }
-    return s
-}
+fun sin(x: Double, eps: Double): Double = TODO()
 
 /**
  * Средняя (4 балла)
@@ -302,15 +300,20 @@ fun squareSequenceDigit(n: Int): Int {
  * Использовать операции со строками в этой задаче запрещается.
  */
 fun fibSequenceDigit(n: Int): Int {
-    var i = 0
-    var n1 = 0
+    var i = 2
+    var n1 = 2
+    val dp = IntArray(n + 1)
+    if (n in 1..2) return 1
+    dp[1] = 1
+    dp[2] = 1
     while (n1 < n) {
         i++
-        var t = fib(i)
+        dp[i] = dp[i - 1] + dp[i - 2]
+        var t = dp[i]
         while (t != 0) {
             n1++
             t /= 10
         }
     }
-    return ((fib(i)) / 10.0.pow(n1 - n) % 10).toInt()
+    return (dp[i] / 10.0.pow(n1 - n) % 10).toInt()
 }
