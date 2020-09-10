@@ -3,6 +3,7 @@
 package lesson4.task1
 
 import lesson1.task1.discriminant
+import lesson1.task1.sqr
 import kotlin.math.sqrt
 
 // Урок 4: списки
@@ -120,14 +121,23 @@ fun buildSumExample(list: List<Int>) = list.joinToString(separator = " + ", post
  * по формуле abs = sqrt(a1^2 + a2^2 + ... + aN^2).
  * Модуль пустого вектора считать равным 0.0.
  */
-fun abs(v: List<Double>): Double = TODO()
+fun abs(v: List<Double>): Double {
+    var s = 0.0
+    for (element in v) s += sqr(element)
+    return sqrt(s)
+}
 
 /**
  * Простая (2 балла)
  *
  * Рассчитать среднее арифметическое элементов списка list. Вернуть 0.0, если список пуст
  */
-fun mean(list: List<Double>): Double = TODO()
+fun mean(list: List<Double>): Double {
+    if (list.isEmpty()) return 0.0
+    var s = 0.0
+    for (element in list) s += element
+    return s / list.size
+}
 
 /**
  * Средняя (3 балла)
@@ -137,7 +147,14 @@ fun mean(list: List<Double>): Double = TODO()
  *
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
-fun center(list: MutableList<Double>): MutableList<Double> = TODO()
+fun center(list: MutableList<Double>): MutableList<Double> {
+    if (list.isEmpty()) return list
+    var s = 0.0
+    for (element in list) s += element
+    s /= list.size
+    for (i in 0 until list.size) list[i] -= s
+    return list
+}
 
 /**
  * Средняя (3 балла)
@@ -186,7 +203,23 @@ fun factorize(n: Int): List<Int> = TODO()
  * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
  * Множители в результирующей строке должны располагаться по возрастанию.
  */
-fun factorizeToString(n: Int): String = TODO()
+fun factorizeToString(n: Int): String {
+    var s = ""
+    var n1 = n
+    var i = 2
+    while (n1 != 1) {
+        var a = n1 % i
+        while (a == 0) {
+            s += "$i*"
+            n1 /= i
+            a = n1 % i
+        }
+        if (i != 2) i += 2
+        else i++
+    }
+    return if (s == "") "$n"
+    else s.dropLast(1)
+}
 
 /**
  * Средняя (3 балла)
