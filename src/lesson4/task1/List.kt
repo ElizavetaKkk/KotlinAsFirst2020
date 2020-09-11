@@ -324,18 +324,20 @@ fun russian(n: Int): String {
     var s = halfTheNumber(n / 1000)
     s = s.trim()
     if (s.isNotEmpty()) {
-        when (n / 1000 % 10) {
-            1 -> if (n / 1000 % 10 != 1) {
-                s = s.dropLast(4)
-                s += "одна тысяча "
-            } else s += " тысяч "
-            2 -> if (n / 1000 % 10 != 1) {
-                s = s.dropLast(3)
-                s += "две тысячи "
-            } else s += " тысяч "
-            in 3..4 -> s += " тысячи "
-            else -> s += " тысяч "
-        }
+        if (n / 10000 % 10 == 1) s += " тысяч "
+        else
+            when (n / 1000 % 10) {
+                1 -> {
+                    s = s.dropLast(4)
+                    s += "одна тысяча "
+                }
+                2 -> {
+                    s = s.dropLast(3)
+                    s += "две тысячи "
+                }
+                in 3..4 -> s += " тысячи "
+                else -> s += " тысяч "
+            }
     }
     s += halfTheNumber(n % 1000)
     return s.trim()
