@@ -242,9 +242,6 @@ fun convert(n: Int, base: Int): List<Int> = TODO()
  * (например, n.toString(base) и подобные), запрещается.
  */
 fun convertToString(n: Int, base: Int): String {
-    if (n < base)
-        return if (n < 10) "$n"
-        else (87 + n).toChar().toString()
     var n1 = n
     var a: Int
     var s = ""
