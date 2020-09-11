@@ -5,6 +5,7 @@ package lesson2.task1
 import lesson1.task1.discriminant
 import kotlin.math.abs
 import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sqrt
 
 // Урок 2: ветвления (здесь), логический тип (см. 2.2).
@@ -177,11 +178,5 @@ fun triangleKind(a: Double, b: Double, c: Double): Int {
  */
 
 fun segmentLength(a: Int, b: Int, c: Int, d: Int): Int =
-    when {
-        b < c || d < a -> -1
-        b == c || d == a || a == b || c == d -> 0
-        a <= c -> if (b >= d) d - c
-        else b - c
-        else -> if (d >= b) b - a
-        else d - a
-    }
+    if (b < c || d < a) -1
+    else min(b, d) - max(a, c)

@@ -4,6 +4,7 @@ package lesson4.task1
 
 import lesson1.task1.discriminant
 import lesson1.task1.sqr
+import kotlin.math.pow
 import kotlin.math.sqrt
 
 // Урок 4: списки
@@ -320,3 +321,41 @@ fun roman(n: Int): String {
  * 23964 = "двадцать три тысячи девятьсот шестьдесят четыре"
  */
 fun russian(n: Int): String = TODO()
+
+/*fun writing(n: Int): String {
+    val numerals = listOf("один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять")
+    val dozens = listOf("надцать", "десят", "дцать")
+    val hundreds = listOf("ста", "сот")
+    val thousand = "тысяч"
+    var n1 = n % 100
+    var s = " "
+    var i = 2
+    while (i > -1) {
+        var a = (n1 / 10.0.pow(i) % 10).toInt()
+        when (i) {
+            2 -> when (a) {
+                1 -> "сто "
+                2 -> "двести "
+                else -> {
+                    s += numerals[a - 1]
+                    s += if (a in 3..4) hundreds[0]
+                    else hundreds[1]
+                    s += " "
+                }
+            }
+            1 -> when (a) {
+                1 -> when (a % 10) {
+                    0 -> "десять"
+                    1 -> "одиннадцать "
+                    2 -> "двенадцать "
+                    3 -> "тринадцать "
+                    else -> numerals[a % 10 - 1].dropLast(1) + dozens[0] + " "
+                }
+                in 2..3 -> numerals[a - 1] + dozens[2]
+                4 -> "сорок"
+                in 5..8 -> numerals[a - 1]
+            }
+        }
+        i--
+    }
+}*/
