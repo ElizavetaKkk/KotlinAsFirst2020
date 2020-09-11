@@ -325,11 +325,11 @@ fun russian(n: Int): String {
     s = s.trim()
     if (s.isNotEmpty()) {
         when (n / 1000 % 10) {
-            1 -> if (n / 100 % 10 != 1) {
+            1 -> if (n / 1000 % 10 != 1) {
                 s = s.dropLast(4)
                 s += "одна тысяча "
             } else s += " тысяч "
-            2 -> if (n / 100 % 10 != 1) {
+            2 -> if (n / 1000 % 10 != 1) {
                 s = s.dropLast(3)
                 s += "две тысячи "
             } else s += " тысяч "
