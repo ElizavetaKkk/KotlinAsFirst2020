@@ -316,26 +316,26 @@ fun decimalFromString(str: String, base: Int): Int = TODO()
  */
 fun roman(n: Int): String {
     var n1 = n
-    var s = ""
+    var s = StringBuilder()
     val rn = "IXCMVLD"
     var a: Int
     var i = 0
     while (n1 != 0) {
         a = n1 % 10
         when (a) {
-            in 1..3 -> for (j in 1..a) s += rn[i]
-            4 -> s = s + rn[4 + i] + rn[i]
-            5 -> s += rn[4 + i]
+            in 1..3 -> for (j in 1..a) s = StringBuilder(s).append(rn[i])
+            4 -> s = StringBuilder(s).append(rn[4 + i]).append(rn[i])
+            5 -> s = StringBuilder(s).append(rn[4 + i])
             in 6..8 -> {
-                for (j in 1..(a - 5)) s += rn[i]
-                s += rn[4 + i]
+                for (j in 1..(a - 5)) s = StringBuilder(s).append(rn[i])
+                s = StringBuilder(s).append(rn[4 + i])
             }
-            9 -> s = s + rn[i + 1] + rn[i]
+            9 -> s = StringBuilder(s).append(rn[i + 1]).append(rn[i])
         }
         n1 /= 10
         i++
     }
-    return s.reversed()
+    return s.toString().reversed()
 }
 
 /**
@@ -348,24 +348,25 @@ fun roman(n: Int): String {
 fun russian(n: Int): String {
     var s = halfTheNumber(n / 1000)
     s = s.trim()
-    if (s.isNotEmpty()) {
-        if (n / 10000 % 10 == 1) s += " тысяч "
+    var s1 = StringBuilder(s)
+    if (s1.isNotEmpty()) {
+        if (n / 10000 % 10 == 1) s1 = StringBuilder(s1).append(" тысяч ")
         else
             when (n / 1000 % 10) {
                 1 -> {
-                    s = s.dropLast(4)
-                    s += "одна тысяча "
+                    s1 = s1.deleteRange(s1.length - 4, s1.length)
+                    s1 = StringBuilder(s1).append("одна тысяча ")
                 }
                 2 -> {
-                    s = s.dropLast(3)
-                    s += "две тысячи "
+                    s1 = s1.deleteRange(s1.length - 3, s1.length)
+                    s1 = StringBuilder(s1).append("две тысячи ")
                 }
-                in 3..4 -> s += " тысячи "
-                else -> s += " тысяч "
+                in 3..4 -> s1 = StringBuilder(s1).append(" тысячи ")
+                else -> s1 = StringBuilder(s1).append(" тысяч ")
             }
     }
-    s += halfTheNumber(n % 1000)
-    return s.trim()
+    s1 = StringBuilder(s1).append(halfTheNumber(n % 1000))
+    return s1.toString().trim()
 }
 
 fun halfTheNumber(x: Int): String {
@@ -373,44 +374,44 @@ fun halfTheNumber(x: Int): String {
         "один", "два", "три", "четыре", "пять", "шесть", "семь", "восемь", "девять", "десять",
         "сорок", "девяносто", "сто", "двести"
     )
-    var s = ""
+    var s = StringBuilder()
     var a = x / 100
     if (x >= 100) {
         when (a) {
-            in 1..2 -> s += numbers[11 + a]
+            in 1..2 -> s = StringBuilder(s).append(numbers[11 + a])
             else -> {
-                s += numbers[a - 1]
-                s += if (a in 3..4) "ста"
-                else "сот"
+                s = StringBuilder(s).append(numbers[a - 1])
+                s = if (a in 3..4) StringBuilder(s).append("ста")
+                else StringBuilder(s).append("сот")
             }
         }
-        s += " "
+        s = StringBuilder(s).append(" ")
     }
     a = x / 10 % 10
     if (a != 0) {
         when (a) {
             1 -> {
                 val b = x % 10
-                s += when (b) {
-                    0 -> numbers[9]
-                    1, 3 -> numbers[b - 1]
-                    2 -> "две"
-                    else -> numbers[b - 1].dropLast(1)
+                s = when (b) {
+                    0 -> StringBuilder(s).append(numbers[9])
+                    1, 3 -> StringBuilder(s).append(numbers[b - 1])
+                    2 -> StringBuilder(s).append("две")
+                    else -> StringBuilder(s).append(numbers[b - 1].dropLast(1))
                 }
-                if (b != 0) s += "надцать"
-                return s
+                if (b != 0) s = StringBuilder(s).append("надцать")
+                return s.toString()
             }
-            4 -> s += numbers[10]
-            9 -> s += numbers[11]
+            4 -> s = StringBuilder(s).append(numbers[10])
+            9 -> s = StringBuilder(s).append(numbers[11])
             else -> {
-                s += numbers[a - 1]
-                s += if (a in 5..8) "десят"
-                else "дцать"
+                s = StringBuilder(s).append(numbers[a - 1])
+                s = if (a in 5..8) StringBuilder(s).append("десят")
+                else StringBuilder(s).append("дцать")
             }
         }
-        s += " "
+        s = StringBuilder(s).append(" ")
     }
     a = x % 10
-    if (a != 0) s += numbers[a - 1]
-    return s
+    if (a != 0) s = StringBuilder(s).append(numbers[a - 1])
+    return s.toString()
 }
