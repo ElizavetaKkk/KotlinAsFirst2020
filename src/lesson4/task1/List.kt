@@ -5,6 +5,7 @@ package lesson4.task1
 import lesson1.task1.discriminant
 import lesson1.task1.sqr
 import lesson3.task1.minDivisor
+import lesson3.task1.revert
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -218,34 +219,7 @@ fun factorize(n: Int): List<Int> {
  * Результат разложения вернуть в виде строки, например 75 -> 3*5*5
  * Множители в результирующей строке должны располагаться по возрастанию.
  */
-fun factorizeToString(n: Int): String {
-    var s = StringBuilder()
-    var n1 = n
-    var i = 2
-    while (n1 != 1) {
-        var a = n1 % i
-        while (a == 0) {
-            s = StringBuilder(s).append("$i*")
-            n1 /= i
-            a = n1 % i
-        }
-        if (i != 2) i += 2
-        else i++
-    }
-    return if (s.toString() == "") "$n"
-    else s.toString().dropLast(1)
-}
-
-/*var n1 = n
-    var s = ""
-    var d: Int
-    while (n1 != 1) {
-        d = minDivisor(n1)
-        n1 /= d
-        s = StringBuilder(s).append("$d*").toString()
-    }
-    return if (s == "") "$n"
-    else s.dropLast(1)*/
+fun factorizeToString(n: Int): String = factorize(n).joinToString(separator = "*")
 
 /**
  * Средняя (3 балла)
@@ -254,7 +228,16 @@ fun factorizeToString(n: Int): String {
  * Результат перевода вернуть в виде списка цифр в base-ичной системе от старшей к младшей,
  * например: n = 100, base = 4 -> (1, 2, 1, 0) или n = 250, base = 14 -> (1, 3, 12)
  */
-fun convert(n: Int, base: Int): List<Int> = TODO()
+fun convert(n: Int, base: Int): List<Int> {
+    if (n < base) return listOf(n)
+    var n1 = n
+    val num = mutableListOf<Int>()
+    while (n1 > 0) {
+        num.add(n1 % base)
+        n1 /= base
+    }
+    return num.reversed()
+}
 
 /**
  * Сложная (4 балла)
@@ -289,7 +272,8 @@ fun convertToString(n: Int, base: Int): String {
  * из системы счисления с основанием base в десятичную.
  * Например: digits = (1, 3, 12), base = 14 -> 250
  */
-fun decimal(digits: List<Int>, base: Int): Int = TODO()
+fun decimal(digits: List<Int>, base: Int): Int =
+    digits.reversed().foldIndexed(0) { index, prRes, el -> prRes + el * base.toDouble().pow(index).toInt() }
 
 /**
  * Сложная (4 балла)
@@ -303,7 +287,14 @@ fun decimal(digits: List<Int>, base: Int): Int = TODO()
  * Использовать функции стандартной библиотеки, напрямую и полностью решающие данную задачу
  * (например, str.toInt(base)), запрещается.
  */
-fun decimalFromString(str: String, base: Int): Int = TODO()
+fun decimalFromString(str: String, base: Int): Int {
+    var num = 0
+    val s = str.reversed()
+    for (i in s.indices)
+        num += if (s[i] in 'a'..'z') (s[i].toInt() - 87) * base.toDouble().pow(i).toInt()
+        else (s[i].toInt() - 48) * base.toDouble().pow(i).toInt()
+    return num
+}
 
 
 /**
