@@ -219,21 +219,21 @@ fun factorize(n: Int): List<Int> {
  * Множители в результирующей строке должны располагаться по возрастанию.
  */
 fun factorizeToString(n: Int): String {
-    var s = ""
+    var s = StringBuilder()
     var n1 = n
     var i = 2
     while (n1 != 1) {
         var a = n1 % i
         while (a == 0) {
-            s = StringBuilder(s).append("$i*").toString()
+            s = StringBuilder(s).append("$i*")
             n1 /= i
             a = n1 % i
         }
         if (i != 2) i += 2
         else i++
     }
-    return if (s == "") "$n"
-    else s.dropLast(1)
+    return if (s.toString() == "") "$n"
+    else s.toString().dropLast(1)
 }
 
 /*var n1 = n
