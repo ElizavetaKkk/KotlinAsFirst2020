@@ -4,6 +4,7 @@ package lesson4.task1
 
 import lesson1.task1.discriminant
 import lesson1.task1.sqr
+import lesson3.task1.minDivisor
 import kotlin.math.pow
 import kotlin.math.sqrt
 
@@ -122,23 +123,18 @@ fun buildSumExample(list: List<Int>) = list.joinToString(separator = " + ", post
  * по формуле abs = sqrt(a1^2 + a2^2 + ... + aN^2).
  * Модуль пустого вектора считать равным 0.0.
  */
-fun abs(v: List<Double>): Double {
-    var s = 0.0
-    for (element in v) s += sqr(element)
-    return sqrt(s)
-}
+fun abs(v: List<Double>): Double =
+    if (v.isEmpty()) 0.0
+    else sqrt(v.map { it * it }.fold(0.0) { prRes, el -> prRes + el })
 
 /**
  * Простая (2 балла)
  *
  * Рассчитать среднее арифметическое элементов списка list. Вернуть 0.0, если список пуст
  */
-fun mean(list: List<Double>): Double {
-    if (list.isEmpty()) return 0.0
-    var s = 0.0
-    for (element in list) s += element
-    return s / list.size
-}
+fun mean(list: List<Double>): Double =
+    if (list.isEmpty()) 0.0
+    else list.sum() / list.size
 
 /**
  * Средняя (3 балла)
@@ -150,9 +146,7 @@ fun mean(list: List<Double>): Double {
  */
 fun center(list: MutableList<Double>): MutableList<Double> {
     if (list.isEmpty()) return list
-    var s = 0.0
-    for (element in list) s += element
-    s /= list.size
+    val s = mean(list)
     for (i in 0 until list.size) list[i] -= s
     return list
 }
@@ -164,7 +158,8 @@ fun center(list: MutableList<Double>): MutableList<Double> {
  * представленные в виде списков a и b. Скалярное произведение считать по формуле:
  * C = a1b1 + a2b2 + ... + aNbN. Произведение пустых векторов считать равным 0.
  */
-fun times(a: List<Int>, b: List<Int>): Int = TODO()
+fun times(a: List<Int>, b: List<Int>): Int =
+    a.foldIndexed(0) { index, prRes, el -> prRes + b[index] * el }
 
 /**
  * Средняя (3 балла)
@@ -174,7 +169,8 @@ fun times(a: List<Int>, b: List<Int>): Int = TODO()
  * Коэффициенты многочлена заданы списком p: (p0, p1, p2, p3, ..., pN).
  * Значение пустого многочлена равно 0 при любом x.
  */
-fun polynom(p: List<Int>, x: Int): Int = TODO()
+fun polynom(p: List<Int>, x: Int): Int =
+    p.foldIndexed(0) { k, s, el -> s + el * x.toDouble().pow(k).toInt() }
 
 /**
  * Средняя (3 балла)
@@ -186,7 +182,15 @@ fun polynom(p: List<Int>, x: Int): Int = TODO()
  *
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
-fun accumulate(list: MutableList<Int>): MutableList<Int> = TODO()
+fun accumulate(list: MutableList<Int>): MutableList<Int> {
+    if (list.isEmpty()) return list
+    var s = list[0]
+    for (i in 1 until list.size) {
+        s += list[i]
+        list[i] = s
+    }
+    return list
+}
 
 /**
  * Средняя (3 балла)
@@ -195,7 +199,17 @@ fun accumulate(list: MutableList<Int>): MutableList<Int> = TODO()
  * Результат разложения вернуть в виде списка множителей, например 75 -> (3, 5, 5).
  * Множители в списке должны располагаться по возрастанию.
  */
-fun factorize(n: Int): List<Int> = TODO()
+fun factorize(n: Int): List<Int> {
+    var n1 = n
+    val list = mutableListOf<Int>()
+    var d: Int
+    while (n1 != 1) {
+        d = minDivisor(n1)
+        n1 /= d
+        list.add(d)
+    }
+    return list
+}
 
 /**
  * Сложная (4 балла)
@@ -211,7 +225,7 @@ fun factorizeToString(n: Int): String {
     while (n1 != 1) {
         var a = n1 % i
         while (a == 0) {
-            s += "$i*"
+            s = StringBuilder(s).append("$i*").toString()
             n1 /= i
             a = n1 % i
         }
@@ -221,6 +235,17 @@ fun factorizeToString(n: Int): String {
     return if (s == "") "$n"
     else s.dropLast(1)
 }
+
+/*var n1 = n
+    var s = ""
+    var d: Int
+    while (n1 != 1) {
+        d = minDivisor(n1)
+        n1 /= d
+        s = StringBuilder(s).append("$d*").toString()
+    }
+    return if (s == "") "$n"
+    else s.dropLast(1)*/
 
 /**
  * Средняя (3 балла)
@@ -249,11 +274,11 @@ fun convertToString(n: Int, base: Int): String {
     while (n1 >= base) {
         a = n1 % base
         if (a < 10) s += "$a"
-        else s += (87 + a).toChar()
+        else s += 'a' + a - 10
         n1 /= base
     }
     if (n1 < 10) s += "$n1"
-    else s += (87 + n1).toChar()
+    else s += 'a' + n1 - 10
     return s.reversed()
 }
 
