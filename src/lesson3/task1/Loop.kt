@@ -264,18 +264,20 @@ fun cos(x: Double, eps: Double): Double = TODO()
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun squareSequenceDigit(n: Int): Int {
+fun squareSequenceDigit(n: Int): Int = ndigit(n) { it * it }
+
+fun ndigit(n: Int, f: (Int) -> Int): Int {
     var i = 0
     var n1 = 0
     while (n1 < n) {
         i++
-        var t = i * i
+        var t = f(i)
         while (t != 0) {
             n1++
             t /= 10
         }
     }
-    return ((i * i) / 10.0.pow(n1 - n) % 10).toInt()
+    return (f(i) / 10.0.pow(n1 - n) % 10).toInt()
 }
 
 /**
@@ -287,21 +289,4 @@ fun squareSequenceDigit(n: Int): Int {
  *
  * Использовать операции со строками в этой задаче запрещается.
  */
-fun fibSequenceDigit(n: Int): Int {
-    var i = 2
-    var n1 = 2
-    val dp = IntArray(n + 1)
-    if (n in 1..2) return 1
-    dp[1] = 1
-    dp[2] = 1
-    while (n1 < n) {
-        i++
-        dp[i] = dp[i - 1] + dp[i - 2]
-        var t = dp[i]
-        while (t != 0) {
-            n1++
-            t /= 10
-        }
-    }
-    return (dp[i] / 10.0.pow(n1 - n) % 10).toInt()
-}
+fun fibSequenceDigit(n: Int): Int = ndigit(n) { fib(it) }
