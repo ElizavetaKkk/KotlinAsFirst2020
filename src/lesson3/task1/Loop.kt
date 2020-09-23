@@ -91,15 +91,13 @@ fun digitNumber(n: Int): Int {
  */
 fun fib(n: Int): Int = if (n <= 1) 1
 else {
-    var i = 2
     var f1 = 1
     var f2 = 1
     var s: Int
-    while (i < n) {
+    for (i in 2 until n) {
         s = f1 + f2
         f1 = f2
         f2 = s
-        i++
     }
     f2
 }
@@ -111,8 +109,8 @@ else {
  */
 fun minDivisor(n: Int): Int {
     var i = 2
-    while (n % i != 0) i++
-    return i
+    while (n % i != 0 && i <= sqrt(n.toDouble())) i++
+    return if (n % i != 0) n else i
 }
 
 /**
@@ -185,7 +183,14 @@ fun isCoPrime(m: Int, n: Int): Boolean = eucAlg(m, n) == 1
  * то есть, существует ли такое целое k, что m <= k*k <= n.
  * Например, для интервала 21..28 21 <= 5*5 <= 28, а для интервала 51..61 квадрата не существует.
  */
-fun squareBetweenExists(m: Int, n: Int): Boolean = TODO()
+fun squareBetweenExists(m: Int, n: Int): Boolean {
+    var i = 0
+    while (i <= sqrt(n.toDouble())) {
+        if (i.toDouble() in sqrt(m.toDouble())..sqrt(n.toDouble())) return true
+        i++
+    }
+    return false
+}
 
 /**
  * Средняя (3 балла)
