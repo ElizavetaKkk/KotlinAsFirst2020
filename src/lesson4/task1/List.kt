@@ -124,9 +124,7 @@ fun buildSumExample(list: List<Int>) = list.joinToString(separator = " + ", post
  * по формуле abs = sqrt(a1^2 + a2^2 + ... + aN^2).
  * Модуль пустого вектора считать равным 0.0.
  */
-fun abs(v: List<Double>): Double =
-    if (v.isEmpty()) 0.0
-    else sqrt(v.map { it * it }.fold(0.0) { prRes, el -> prRes + el })
+fun abs(v: List<Double>): Double = sqrt(v.map { it * it }.sum())
 
 /**
  * Простая (2 балла)
@@ -146,7 +144,6 @@ fun mean(list: List<Double>): Double =
  * Обратите внимание, что данная функция должна изменять содержание списка list, а не его копии.
  */
 fun center(list: MutableList<Double>): MutableList<Double> {
-    if (list.isEmpty()) return list
     val s = mean(list)
     for (i in 0 until list.size) list[i] -= s
     return list
@@ -185,11 +182,7 @@ fun polynom(p: List<Int>, x: Int): Int =
  */
 fun accumulate(list: MutableList<Int>): MutableList<Int> {
     if (list.isEmpty()) return list
-    var s = list[0]
-    for (i in 1 until list.size) {
-        s += list[i]
-        list[i] = s
-    }
+    for (i in 1 until list.size) list[i] += list[i - 1]
     return list
 }
 
@@ -253,16 +246,16 @@ fun convert(n: Int, base: Int): List<Int> {
 fun convertToString(n: Int, base: Int): String {
     var n1 = n
     var a: Int
-    var s = ""
+    val list = mutableListOf<String>()
     while (n1 >= base) {
         a = n1 % base
-        if (a < 10) s += "$a"
-        else s += 'a' + a - 10
+        if (a < 10) list.add("$a")
+        else list.add(('a' + a - 10).toString())
         n1 /= base
     }
-    if (n1 < 10) s += "$n1"
-    else s += 'a' + n1 - 10
-    return s.reversed()
+    if (n1 < 10) list.add("$n1")
+    else list.add(('a' + n1 - 10).toString())
+    return list.reversed().joinToString("")
 }
 
 /**
@@ -273,7 +266,8 @@ fun convertToString(n: Int, base: Int): String {
  * Например: digits = (1, 3, 12), base = 14 -> 250
  */
 fun decimal(digits: List<Int>, base: Int): Int =
-    digits.reversed().foldIndexed(0) { index, prRes, el -> prRes + el * base.toDouble().pow(index).toInt() }
+    digits.reversed().foldIndexed(0)
+    { index, prRes, el -> prRes + el * base.toDouble().pow(index).toInt() }
 
 /**
  * Сложная (4 балла)
@@ -288,12 +282,11 @@ fun decimal(digits: List<Int>, base: Int): Int =
  * (например, str.toInt(base)), запрещается.
  */
 fun decimalFromString(str: String, base: Int): Int {
-    var num = 0
-    val s = str.reversed()
-    for (i in s.indices)
-        num += if (s[i] in 'a'..'z') (s[i].toInt() - 87) * base.toDouble().pow(i).toInt()
-        else (s[i].toInt() - 48) * base.toDouble().pow(i).toInt()
-    return num
+    val list = mutableListOf<Int>()
+    for (i in str.indices)
+        if (str[i] in '0'..'9') list.add(str[i].toInt() - 48)
+        else list.add(str[i].toInt() - 87)
+    return decimal(list, base)
 }
 
 
@@ -314,14 +307,14 @@ fun roman(n: Int): String {
     while (n1 != 0) {
         a = n1 % 10
         when (a) {
-            in 1..3 -> for (j in 1..a) s = StringBuilder(s).append(rn[i])
-            4 -> s = StringBuilder(s).append(rn[4 + i]).append(rn[i])
-            5 -> s = StringBuilder(s).append(rn[4 + i])
+            in 1..3 -> for (j in 1..a) s = s.append(rn[i])
+            4 -> s = s.append(rn[4 + i]).append(rn[i])
+            5 -> s = s.append(rn[4 + i])
             in 6..8 -> {
-                for (j in 1..(a - 5)) s = StringBuilder(s).append(rn[i])
-                s = StringBuilder(s).append(rn[4 + i])
+                for (j in 1..(a - 5)) s = s.append(rn[i])
+                s = s.append(rn[4 + i])
             }
-            9 -> s = StringBuilder(s).append(rn[i + 1]).append(rn[i])
+            9 -> s = s.append(rn[i + 1]).append(rn[i])
         }
         n1 /= 10
         i++
@@ -341,22 +334,22 @@ fun russian(n: Int): String {
     s = s.trim()
     var s1 = StringBuilder(s)
     if (s1.isNotEmpty()) {
-        if (n / 10000 % 10 == 1) s1 = StringBuilder(s1).append(" тысяч ")
+        if (n / 10000 % 10 == 1) s1 = s1.append(" тысяч ")
         else
             when (n / 1000 % 10) {
                 1 -> {
                     s1 = s1.deleteRange(s1.length - 4, s1.length)
-                    s1 = StringBuilder(s1).append("одна тысяча ")
+                    s1 = s1.append("одна тысяча ")
                 }
                 2 -> {
                     s1 = s1.deleteRange(s1.length - 3, s1.length)
-                    s1 = StringBuilder(s1).append("две тысячи ")
+                    s1 = s1.append("две тысячи ")
                 }
-                in 3..4 -> s1 = StringBuilder(s1).append(" тысячи ")
-                else -> s1 = StringBuilder(s1).append(" тысяч ")
+                in 3..4 -> s1 = s1.append(" тысячи ")
+                else -> s1 = s1.append(" тысяч ")
             }
     }
-    s1 = StringBuilder(s1).append(halfTheNumber(n % 1000))
+    s1 = s1.append(halfTheNumber(n % 1000))
     return s1.toString().trim()
 }
 
@@ -369,14 +362,14 @@ fun halfTheNumber(x: Int): String {
     var a = x / 100
     if (x >= 100) {
         when (a) {
-            in 1..2 -> s = StringBuilder(s).append(numbers[11 + a])
+            in 1..2 -> s = s.append(numbers[11 + a])
             else -> {
-                s = StringBuilder(s).append(numbers[a - 1])
-                s = if (a in 3..4) StringBuilder(s).append("ста")
-                else StringBuilder(s).append("сот")
+                s = s.append(numbers[a - 1])
+                s = if (a in 3..4) s.append("ста")
+                else s.append("сот")
             }
         }
-        s = StringBuilder(s).append(" ")
+        s = s.append(" ")
     }
     a = x / 10 % 10
     if (a != 0) {
@@ -384,25 +377,25 @@ fun halfTheNumber(x: Int): String {
             1 -> {
                 val b = x % 10
                 s = when (b) {
-                    0 -> StringBuilder(s).append(numbers[9])
-                    1, 3 -> StringBuilder(s).append(numbers[b - 1])
-                    2 -> StringBuilder(s).append("две")
-                    else -> StringBuilder(s).append(numbers[b - 1].dropLast(1))
+                    0 -> s.append(numbers[9])
+                    1, 3 -> s.append(numbers[b - 1])
+                    2 -> s.append("две")
+                    else -> s.append(numbers[b - 1].dropLast(1))
                 }
-                if (b != 0) s = StringBuilder(s).append("надцать")
+                if (b != 0) s = s.append("надцать")
                 return s.toString()
             }
-            4 -> s = StringBuilder(s).append(numbers[10])
-            9 -> s = StringBuilder(s).append(numbers[11])
+            4 -> s = s.append(numbers[10])
+            9 -> s = s.append(numbers[11])
             else -> {
-                s = StringBuilder(s).append(numbers[a - 1])
-                s = if (a in 5..8) StringBuilder(s).append("десят")
-                else StringBuilder(s).append("дцать")
+                s = s.append(numbers[a - 1])
+                s = if (a in 5..8) s.append("десят")
+                else s.append("дцать")
             }
         }
-        s = StringBuilder(s).append(" ")
+        s = s.append(" ")
     }
     a = x % 10
-    if (a != 0) s = StringBuilder(s).append(numbers[a - 1])
+    if (a != 0) s = s.append(numbers[a - 1])
     return s.toString()
 }
