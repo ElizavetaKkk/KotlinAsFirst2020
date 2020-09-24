@@ -299,27 +299,19 @@ fun decimalFromString(str: String, base: Int): Int {
  * Например: 23 = XXIII, 44 = XLIV, 100 = C
  */
 fun roman(n: Int): String {
+    val romanDigits = listOf("M", "CM", "D", "CD", "C", "XC", "L", "XL", "X", "IX", "V", "IV", "I")
+    val arabianDigits = listOf(1000, 900, 500, 400, 100, 90, 50, 40, 10, 9, 5, 4, 1)
+    var s = ""
     var n1 = n
-    var s = StringBuilder()
-    val rn = "IXCMVLD"
-    var a: Int
-    var i = 0
-    while (n1 != 0) {
-        a = n1 % 10
-        when (a) {
-            in 1..3 -> for (j in 1..a) s = s.append(rn[i])
-            4 -> s = s.append(rn[4 + i]).append(rn[i])
-            5 -> s = s.append(rn[4 + i])
-            in 6..8 -> {
-                for (j in 1..(a - 5)) s = s.append(rn[i])
-                s = s.append(rn[4 + i])
+    while (n1 > 0)
+        for (i in 0..12) {
+            if (n1 - arabianDigits[i] >= 0) {
+                n1 -= arabianDigits[i]
+                s += romanDigits[i]
+                break
             }
-            9 -> s = s.append(rn[i + 1]).append(rn[i])
         }
-        n1 /= 10
-        i++
-    }
-    return s.toString().reversed()
+    return s
 }
 
 /**
