@@ -243,20 +243,9 @@ fun convert(n: Int, base: Int): List<Int> {
  * Использовать функции стандартной библиотеки, напрямую и полностью решающие данную задачу
  * (например, n.toString(base) и подобные), запрещается.
  */
-fun convertToString(n: Int, base: Int): String {
-    var n1 = n
-    var a: Int
-    val list = mutableListOf<String>()
-    while (n1 >= base) {
-        a = n1 % base
-        if (a < 10) list.add("$a")
-        else list.add(('a' + a - 10).toString())
-        n1 /= base
-    }
-    if (n1 < 10) list.add("$n1")
-    else list.add(('a' + n1 - 10).toString())
-    return list.reversed().joinToString("")
-}
+fun convertToString(n: Int, base: Int): String =
+    convert(n, base).joinToString(separator = "")
+    { if (it in 0..9) it.toString() else ('W' + it).toString() }
 
 /**
  * Средняя (3 балла)
@@ -284,8 +273,8 @@ fun decimal(digits: List<Int>, base: Int): Int =
 fun decimalFromString(str: String, base: Int): Int {
     val list = mutableListOf<Int>()
     for (i in str.indices)
-        if (str[i] in '0'..'9') list.add(str[i].toInt() - 48)
-        else list.add(str[i].toInt() - 87)
+        if (str[i] in '0'..'9') list.add(str[i] - '0')
+        else list.add(str[i] - 'W')
     return decimal(list, base)
 }
 
