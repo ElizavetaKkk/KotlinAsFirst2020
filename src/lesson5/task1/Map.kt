@@ -98,13 +98,7 @@ fun buildWordSet(text: List<String>): MutableSet<String> {
  */
 fun buildGrades(grades: Map<String, Int>): Map<Int, List<String>> {
     val grades1 = mutableMapOf<Int, MutableList<String>>()
-    for ((nm, grd) in grades) {
-        var t = grades1[grd]
-        if (t == null) t = mutableListOf(nm)
-        else t.add(nm)
-        //(grades1.getOrPut(grd) { mutableListOf<String>() }).add(nm)
-        grades1[grd] = t
-    }
+    for ((nm, grd) in grades) (grades1.getOrPut(grd) { mutableListOf() }).add(nm)
     return grades1
 }
 
@@ -138,13 +132,8 @@ fun containsIn(a: Map<String, String>, b: Map<String, String>): Boolean {
  *     -> a changes to mutableMapOf() aka becomes empty
  */
 fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) {
-    val list = mutableListOf<String>()
-    for ((k, v) in a)
-        if (k in b && v == b[k]) list.add(k)
-    for (k in list) a.remove(k)
+    for ((k, v) in b) a.remove(k, v)
 }
-
-//А почему нельзя сразу в цикле а.remove(k) писать?
 
 /**
  * Простая (2 балла)
@@ -153,11 +142,7 @@ fun subtractOf(a: MutableMap<String, String>, b: Map<String, String>) {
  * В выходном списке не должно быть повторяюихся элементов,
  * т. е. whoAreInBoth(listOf("Марат", "Семён, "Марат"), listOf("Марат", "Марат")) == listOf("Марат")
  */
-fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
-    val list = mutableSetOf<String>()
-    for (it in a) if (it in b) list.add(it)
-    return list.toList()
-}
+fun whoAreInBoth(a: List<String>, b: List<String>): List<String> = b.intersect(a).toList()
 
 /**
  * Средняя (3 балла)
@@ -178,9 +163,13 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> {
  */
 fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<String, String> {
     val map = mapA.toMutableMap()
-    for ((k, v) in mapB)
-        if (v !in map.values) if (map[k] == null) map[k] = v else map[k] += ", $v"
-    return map.toMap()
+    for ((k, v) in mapB) {
+        var m = map[k]
+        if (m == null) m = v
+        else if (mapA[k] != v) m += ", $v"
+        map[k] = m
+    }
+    return map
 }
 
 /**
