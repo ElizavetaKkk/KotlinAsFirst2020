@@ -299,6 +299,42 @@ class Tests {
                 )
             )
         )
+        assertEquals(
+            mapOf(
+                "0" to setOf(),
+                "1" to setOf(),
+                "a9" to setOf(),
+                "201" to setOf(),
+                "1de" to setOf(),
+                "ed" to setOf(),
+                "2" to setOf(),
+                "113" to setOf("0", "289", "13", "1", "201", "a9", "1de", "33c", "2", "32f", "1d8", "28"),
+                "13" to setOf("1d8", "0", "a9", "1", "1de", "28"),
+                "32f" to setOf(),
+                "33c" to setOf(),
+                "28" to setOf(),
+                "289" to setOf("0", "13", "1", "201", "a9", "113", "1de", "33c", "2", "32f", "1d8", "28"),
+                "1d8" to setOf("0", "a9", "1", "1de", "28")
+            ),
+            propagateHandshakes(
+                mapOf(
+                    "0" to setOf(),
+                    "1" to setOf(),
+                    "a9" to setOf(),
+                    "201" to setOf(),
+                    "1de" to setOf(),
+                    "ed" to setOf(),
+                    "2" to setOf(),
+                    "113" to setOf("0", "289"),
+                    "13" to setOf("1d8", "0"),
+                    "32f" to setOf(),
+                    "33c" to setOf(),
+                    "28" to setOf(),
+                    "289" to setOf("0", "13", "1", "201", "a9", "113", "1de", "33c", "2", "32f"),
+                    "1d8" to setOf("0", "a9", "1", "1de", "28")
+                )
+            )
+        )
     }
 
     @Test
