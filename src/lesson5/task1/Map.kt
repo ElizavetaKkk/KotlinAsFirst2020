@@ -204,10 +204,14 @@ fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Doub
  *   ) -> "Мария"
  */
 fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): String? {
-    var res: Pair<String?, Double> = Pair(null, Double.MAX_VALUE)
+    var name: String? = null
+    var cost = Double.MAX_VALUE
     for ((type, pair) in stuff)
-        if (pair.first == kind && pair.second <= res.second) res = type to pair.second
-    return res.first
+        if (pair.first == kind && pair.second <= cost) {
+            name = type
+            cost = pair.second
+        }
+    return name
 }
 
 /**
@@ -219,11 +223,8 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  * Например:
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
-fun canBuildFrom(chars: List<Char>, word: String): Boolean {
-    val set = mutableSetOf<Char>()
-    for (ch in word) set.add(ch)
-    return chars.containsAll(set)
-}
+fun canBuildFrom(chars: List<Char>, word: String): Boolean =
+    chars.toSet().map { it.toLowerCase() }.containsAll(word.toLowerCase().toSet())
 
 /**
  * Средняя (4 балла)
@@ -239,8 +240,8 @@ fun canBuildFrom(chars: List<Char>, word: String): Boolean {
  */
 fun extractRepeats(list: List<String>): Map<String, Int> {
     val res = mutableMapOf<String, Int>()
-    for (el in list) res[el] = res[el]?.plus(1) ?: 1
-    return res.filterNot { (_, am) -> am == 1 }
+    for (el in list) res[el] = (res[el] ?: 0) + 1
+    return res.filterValues { it != 1 }
 }
 
 /**
@@ -256,14 +257,8 @@ fun extractRepeats(list: List<String>): Map<String, Int> {
  *   hasAnagrams(listOf("тор", "свет", "рот")) -> true
  */
 fun hasAnagrams(words: List<String>): Boolean {
-    if (words.isEmpty()) return false
-    val list = mutableListOf<String>()
-    for (el in words) {
-        val s = el.toCharArray().sorted().joinToString("")
-        if (s in list) return true
-        else list.add(s)
-    }
-    return false
+    val list = words.map { it.toCharArray().sorted().joinToString("") }
+    return list.toSet().size != list.size
 }
 
 /**
