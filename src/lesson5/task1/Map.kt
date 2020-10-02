@@ -167,10 +167,9 @@ fun whoAreInBoth(a: List<String>, b: List<String>): List<String> = b.intersect(a
 fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<String, String> {
     val map = mapA.toMutableMap()
     for ((k, v) in mapB) {
-        var m = map[k]
-        if (m == null) m = v
-        else if (mapA[k] != v) m += ", $v"
-        map[k] = m
+        val m = map[k]
+        if (m == null) map[k] = v
+        else if (m != v) map[k] += ", $v"
     }
     return map
 }
@@ -188,7 +187,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
 fun averageStockPrice(stockPrices: List<Pair<String, Double>>): Map<String, Double> {
     val map = mutableMapOf<String, MutableList<Double>>()
     for ((st, pr) in stockPrices) (map.getOrPut(st) { mutableListOf() }).add(pr)
-    return map.mapValues { it.value.sum() / it.value.count() }
+    return map.mapValues { it.value.sum() / it.value.size }
 }
 
 /**
@@ -227,7 +226,7 @@ fun findCheapestStuff(stuff: Map<String, Pair<String, Double>>, kind: String): S
  *   canBuildFrom(listOf('a', 'b', 'o'), "baobab") -> true
  */
 fun canBuildFrom(chars: List<Char>, word: String): Boolean =
-    chars.toSet().map { it.toLowerCase() }.containsAll(word.toLowerCase().toSet())
+    chars.map { it.toLowerCase() }.toSet().containsAll(word.toLowerCase().toList())
 
 /**
  * Средняя (4 балла)
@@ -301,11 +300,22 @@ fun hasAnagrams(words: List<String>): Boolean {
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
     val res = friends.toMutableMap()
     for ((name, pair) in friends)
-        for (el in pair)
-            if (!res.containsKey(el)) res[el] = setOf()
-            else for (i in res.getValue(el))
-                if (i != name) res[name] = (res[name]!!.toMutableSet() + i).toSet()
-    return res.toMap()
+        for (el in pair) subsHands(friends, res, name, el)
+    return res
+}
+
+fun subsHands(
+    friends: Map<String, Set<String>>,
+    res: MutableMap<String, Set<String>>,
+    name: String,
+    el: String
+) {
+    if (!res.containsKey(el)) res[el] = setOf()
+    else for (i in res.getValue(el))
+        if (i != name && !res.getValue(name).contains(i)) {
+            res[name] = res[name]!! + i
+            subsHands(friends, res, name, i)
+        }
 }
 
 /**
@@ -328,8 +338,8 @@ fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<Stri
 fun findSumOfTwo(list: List<Int>, number: Int): Pair<Int, Int> {
     val map = mutableMapOf<Int, Int>()
     for ((i, el) in list.withIndex()) {
-        if (map[number - el] == null) map[el] = i
-        else return min(i, map[number - el]!!) to max(i, map[number - el]!!)
+        val t = map[number - el]
+        if (t == null) map[el] = i else return t to i
     }
     return Pair(-1, -1)
 }
