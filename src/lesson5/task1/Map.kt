@@ -315,7 +315,7 @@ fun subsHands(
         res[el] = mutableSetOf()
     } else for (i in rEl)
         if (i != name && !rName.contains(i)) {
-            res[name]!!.add(i)
+            rName.add(i)
             subsHands(res, name, i)
         }
 }
