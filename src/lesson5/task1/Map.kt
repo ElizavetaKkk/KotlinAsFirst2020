@@ -310,13 +310,12 @@ fun subsHands(
     name: String,
     el: String
 ) {
-    val rName = res[name]
-    var rEl = res[el]
+    val rName = res[name]!!
+    val rEl = res[el]
     if (rEl == null) {
-        rEl = setOf()
-        res[el] = rEl
+        res[el] = setOf()
     } else for (i in rEl)
-        if (i != name && !rName!!.contains(i)) {
+        if (i != name && !rName.contains(i)) {
             res[name] = rName + i
             subsHands(friends, res, name, i)
         }
