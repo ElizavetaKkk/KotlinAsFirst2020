@@ -169,7 +169,7 @@ fun mergePhoneBooks(mapA: Map<String, String>, mapB: Map<String, String>): Map<S
     for ((k, v) in mapB) {
         val m = map[k]
         if (m == null) map[k] = v
-        else if (m != v) map[k] += ", $v"
+        else if (m != v) map[k] = "$m, $v"
     }
     return map
 }
@@ -310,10 +310,14 @@ fun subsHands(
     name: String,
     el: String
 ) {
-    if (!res.containsKey(el)) res[el] = setOf()
-    else for (i in res.getValue(el))
-        if (i != name && !res.getValue(name).contains(i)) {
-            res[name] = res[name]!! + i
+    val rName = res[name]
+    var rEl = res[el]
+    if (rEl == null) {
+        rEl = setOf()
+        res[el] = rEl
+    } else for (i in rEl)
+        if (i != name && !rName!!.contains(i)) {
+            res[name] = rName + i
             subsHands(friends, res, name, i)
         }
 }
