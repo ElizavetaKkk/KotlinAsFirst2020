@@ -298,7 +298,8 @@ fun hasAnagrams(words: List<String>): Boolean {
  *        )
  */
 fun propagateHandshakes(friends: Map<String, Set<String>>): Map<String, Set<String>> {
-    val res = friends.mapValues { it.value.toMutableSet() }.toMutableMap()
+    val res = mutableMapOf<String, MutableSet<String>>()
+    friends.mapValuesTo(res) { it.value.toMutableSet() }
     for ((name, pair) in friends)
         for (el in pair) subsHands(res, name, el)
     return res
