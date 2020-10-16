@@ -74,7 +74,29 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-fun dateStrToDigit(str: String): String = TODO()
+val map1 = mapOf(
+    "января" to Pair(1, 31), "февраля" to Pair(2, 28), "марта" to Pair(3, 31), "апреля" to Pair(4, 30),
+    "мая" to Pair(5, 31), "июня" to Pair(6, 30), "июля" to Pair(7, 31), "августа" to Pair(8, 31),
+    "сентября" to Pair(9, 30), "октября" to Pair(10, 31), "ноября" to Pair(11, 30), "декабря" to Pair(12, 31)
+)
+
+fun dayInMonth(month: String, year: Int): Int =
+    if (month == "февраля" && (year % 400 == 0 || year % 100 != 0 && year % 4 == 0)) 29
+    else (map1[month] ?: error("")).second
+
+fun dateStrToDigit(str: String): String {
+    val list = str.split(" ")
+    var res = ""
+    if (list.size == 3) {
+        val day = list[0].toInt()
+        val month = map1[list[1]]?.first
+        val year = list[2].toInt()
+        if (month == null) return res
+        res = if (day !in 1..dayInMonth(list[1], year)) ""
+        else String.format("%02d.%02d.%d", day, month, year)
+    }
+    return res
+}
 
 /**
  * Средняя (4 балла)
@@ -86,7 +108,25 @@ fun dateStrToDigit(str: String): String = TODO()
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-fun dateDigitToStr(digital: String): String = TODO()
+val map2 = mapOf(
+    1 to Pair("января", 31), 2 to Pair("февраля", 30), 3 to Pair("марта", 31), 4 to Pair("апреля", 30),
+    5 to Pair("мая", 31), 6 to Pair("июня", 30), 7 to Pair("июля", 31), 8 to Pair("августа", 31),
+    9 to Pair("сентября", 30), 10 to Pair("октября", 31), 11 to Pair("ноября", 30), 12 to Pair("декабря", 31)
+)
+
+fun dateDigitToStr(digital: String): String {
+    val list = digital.split(".")
+    var res = ""
+    if (list.size == 3) {
+        val day = list[0].toIntOrNull()
+        val month = map2[list[1].toIntOrNull()]?.first
+        val year = list[2].toIntOrNull()
+        if (day == null || month == null || year == null) return res
+        res = if (day !in 1..dayInMonth(month, year)) ""
+        else "$day $month $year"
+    }
+    return res
+}
 
 /**
  * Средняя (4 балла)
@@ -114,7 +154,16 @@ fun flattenPhoneNumber(phone: String): String = TODO()
  * Прочитать строку и вернуть максимальное присутствующее в ней число (717 в примере).
  * При нарушении формата входной строки или при отсутствии в ней чисел, вернуть -1.
  */
-fun bestLongJump(jumps: String): Int = TODO()
+fun bestLongJump(jumps: String): Int {
+    if (!jumps.matches(Regex("""[\d%\- ]*"""))) return -1
+    val list = jumps.split(" ")
+    var max = -1
+    for (el in list) {
+        val a = el.toIntOrNull() ?: -1
+        if (a > max) max = a
+    }
+    return max
+}
 
 /**
  * Сложная (6 баллов)
@@ -127,7 +176,20 @@ fun bestLongJump(jumps: String): Int = TODO()
  * При нарушении формата входной строки, а также в случае отсутствия удачных попыток,
  * вернуть -1.
  */
-fun bestHighJump(jumps: String): Int = TODO()
+fun bestHighJump(jumps: String): Int {
+    if (!jumps.matches(Regex("""[\d%+\- ]*"""))) return -1
+    val list = jumps.split(" ")
+    var max = -1
+    var b = -1
+    for (i in list.indices) {
+        val a = list[i]
+        when (a.toIntOrNull()) {
+            null -> if (a == "+" && b > max) max = b
+            else -> b = a.toInt()
+        }
+    }
+    return max
+}
 
 /**
  * Сложная (6 баллов)
@@ -138,7 +200,27 @@ fun bestHighJump(jumps: String): Int = TODO()
  * Вернуть значение выражения (6 для примера).
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
-fun plusMinus(expression: String): Int = TODO()
+fun plusMinus(expression: String): Int {
+    val list = expression.split(" ")
+    var f = true
+    var sum = 0
+    var k = 1
+    for (i in list.indices) {
+        val a = list[i]
+        if (f) {
+            if (!a[0].isDigit()) throw IllegalArgumentException()
+            sum += k * (a.toIntOrNull() ?: throw IllegalArgumentException())
+        } else {
+            k = when (a) {
+                "+" -> 1
+                "-" -> -1
+                else -> throw IllegalArgumentException()
+            }
+        }
+        f = !f
+    }
+    if (!f) return sum else throw IllegalArgumentException()
+}
 
 /**
  * Сложная (6 баллов)
@@ -149,7 +231,15 @@ fun plusMinus(expression: String): Int = TODO()
  * Вернуть индекс начала первого повторяющегося слова, или -1, если повторов нет.
  * Пример: "Он пошёл в в школу" => результат 9 (индекс первого 'в')
  */
-fun firstDuplicateIndex(str: String): Int = TODO()
+fun firstDuplicateIndex(str: String): Int {
+    val list = str.toLowerCase().split(" ")
+    var ind = 0
+    for (i in 1 until list.size) {
+        if (list[i] == list[i - 1]) return ind
+        ind += list[i - 1].length + 1
+    }
+    return -1
+}
 
 /**
  * Сложная (6 баллов)
@@ -213,4 +303,45 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> = TODO()
+fun correctBrackets(str: String): Boolean {
+    var n = 0
+    for (el in str)
+        when (el) {
+            '[' -> n++
+            ']' -> if (n > 0) n-- else return false
+        }
+    return n == 0
+}
+
+fun findBracket(commands: String, a: Char, b: Char): Int {
+    var brack = 0
+    for (i in commands.indices)
+        when (commands[i]) {
+            a -> brack++
+            b -> if (brack > 1) brack-- else return i
+        }
+    return 0
+}
+
+fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
+    if (!commands.matches(Regex("""[\[\]+\-<> ]*""")) || !correctBrackets(commands))
+        throw IllegalArgumentException()
+    val list = MutableList(cells) { 0 }
+    var ind = cells / 2
+    var comd = 0
+    var comdLim = 0
+    while (comdLim < limit && comd < commands.length) {
+        when (commands[comd]) {
+            '+' -> list[ind]++
+            '-' -> list[ind]--
+            '>' -> ind++
+            '<' -> ind--
+            '[' -> if (list[ind] == 0) comd += findBracket(commands.substring(comd), '[', ']')
+            ']' -> if (list[ind] != 0) comd -= findBracket(commands.substring(0, comd + 1).reversed(), ']', '[')
+        }
+        if (ind !in 0 until cells) throw IllegalStateException()
+        comd++
+        comdLim++
+    }
+    return list
+}
