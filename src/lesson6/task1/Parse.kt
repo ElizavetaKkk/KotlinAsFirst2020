@@ -85,13 +85,13 @@ fun dayInMonth(month: String, year: Int): Int =
     else (map1[month] ?: error("")).second
 
 fun dateStrToDigit(str: String): String {
+    if (!str.matches(Regex("""\d+ [а-я]+ \d+"""))) return ""
     val list = str.split(" ")
     var res = ""
     if (list.size == 3) {
         val day = list[0].toInt()
-        val month = map1[list[1]]?.first
+        val month = map1[list[1]]?.first ?: return ""
         val year = list[2].toInt()
-        if (month == null) return res
         res = if (day !in 1..dayInMonth(list[1], year)) ""
         else String.format("%02d.%02d.%d", day, month, year)
     }
@@ -201,6 +201,8 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
+    if (!expression.matches(Regex("""[\d-+ ]*""")) || expression.matches(Regex("""\s*""")))
+        throw IllegalArgumentException()
     val list = expression.split(" ")
     var f = true
     var sum = 0
@@ -213,8 +215,7 @@ fun plusMinus(expression: String): Int {
         } else {
             k = when (a) {
                 "+" -> 1
-                "-" -> -1
-                else -> throw IllegalArgumentException()
+                else -> -1
             }
         }
         f = !f
