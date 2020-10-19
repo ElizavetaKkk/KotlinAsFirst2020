@@ -2,6 +2,8 @@
 
 package lesson6.task1
 
+import lesson2.task2.daysInMonth
+
 // Урок 6: разбор строк, исключения
 // Максимальное количество баллов = 13
 // Рекомендуемое количество баллов = 11
@@ -74,28 +76,21 @@ fun main() {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30.02.2009) считается неверными
  * входными данными.
  */
-val map1 = mapOf(
-    "января" to Pair(1, 31), "февраля" to Pair(2, 28), "марта" to Pair(3, 31), "апреля" to Pair(4, 30),
-    "мая" to Pair(5, 31), "июня" to Pair(6, 30), "июля" to Pair(7, 31), "августа" to Pair(8, 31),
-    "сентября" to Pair(9, 30), "октября" to Pair(10, 31), "ноября" to Pair(11, 30), "декабря" to Pair(12, 31)
-)
-
-fun dayInMonth(month: String, year: Int): Int =
-    if (month == "февраля" && (year % 400 == 0 || year % 100 != 0 && year % 4 == 0)) 29
-    else (map1[month] ?: error("")).second
-
 fun dateStrToDigit(str: String): String {
+    val map = mapOf(
+        "января" to 1, "февраля" to 2, "марта" to 3, "апреля" to 4, "мая" to 5, "июня" to 6,
+        "июля" to 7, "августа" to 8, "сентября" to 9, "октября" to 10, "ноября" to 11, "декабря" to 12
+    )
     if (!str.matches(Regex("""\d+ [а-я]+ \d+"""))) return ""
     val list = str.split(" ")
-    var res = ""
-    if (list.size == 3) {
+    return if (list.size != 3) ""
+    else {
         val day = list[0].toInt()
-        val month = map1[list[1]]?.first ?: return ""
+        val month = map[list[1]] ?: return ""
         val year = list[2].toInt()
-        res = if (day !in 1..dayInMonth(list[1], year)) ""
+        if (day !in 1..daysInMonth(month, year)) ""
         else String.format("%02d.%02d.%d", day, month, year)
     }
-    return res
 }
 
 /**
@@ -108,24 +103,22 @@ fun dateStrToDigit(str: String): String {
  * Обратите внимание: некорректная с точки зрения календаря дата (например, 30 февраля 2009) считается неверными
  * входными данными.
  */
-val map2 = mapOf(
-    1 to Pair("января", 31), 2 to Pair("февраля", 30), 3 to Pair("марта", 31), 4 to Pair("апреля", 30),
-    5 to Pair("мая", 31), 6 to Pair("июня", 30), 7 to Pair("июля", 31), 8 to Pair("августа", 31),
-    9 to Pair("сентября", 30), 10 to Pair("октября", 31), 11 to Pair("ноября", 30), 12 to Pair("декабря", 31)
-)
-
 fun dateDigitToStr(digital: String): String {
+    val map = mapOf(
+        1 to "января", 2 to "февраля", 3 to "марта", 4 to "апреля", 5 to "мая", 6 to "июня",
+        7 to "июля", 8 to "августа", 9 to "сентября", 10 to "октября", 11 to "ноября", 12 to "декабря"
+    )
+    if (!digital.matches(Regex("""(\d{2})\.(\d{2})\.(\d+)"""))) return ""
     val list = digital.split(".")
-    var res = ""
-    if (list.size == 3) {
-        val day = list[0].toIntOrNull()
-        val month = map2[list[1].toIntOrNull()]?.first
-        val year = list[2].toIntOrNull()
-        if (day == null || month == null || year == null) return res
-        res = if (day !in 1..dayInMonth(month, year)) ""
+    return if (list.size != 3) ""
+    else {
+        val day = list[0].toIntOrNull() ?: return ""
+        val monthN = list[1].toIntOrNull() ?: return ""
+        val month = map[monthN] ?: return ""
+        val year = list[2].toIntOrNull() ?: return ""
+        if (day !in 1..daysInMonth(monthN, year)) ""
         else "$day $month $year"
     }
-    return res
 }
 
 /**
@@ -185,10 +178,9 @@ fun bestHighJump(jumps: String): Int {
     val list = jumps.split(" ")
     var max = -1
     var b = -1
-    for (i in list.indices) {
-        val a = list[i]
+    for (a in list) {
         when (a.toIntOrNull()) {
-            null -> if (a == "+" && b > max) max = b
+            null -> if (a.contains('+') && b > max) max = b
             else -> b = a.toInt()
         }
     }
@@ -206,25 +198,25 @@ fun bestHighJump(jumps: String): Int {
  */
 fun plusMinus(expression: String): Int {
     if (!expression.matches(Regex("""[\d-+ ]*""")) || expression.matches(Regex("""\s*""")))
-        throw IllegalArgumentException()
+        throw IllegalArgumentException("Incorrect input expression")
     val list = expression.split(" ")
-    var f = true
+    var noNow = true
     var sum = 0
     var k = 1
     for (i in list.indices) {
         val a = list[i]
-        if (f) {
-            if (!a[0].isDigit()) throw IllegalArgumentException()
-            sum += k * (a.toIntOrNull() ?: throw IllegalArgumentException())
+        if (noNow) {
+            if (!a[0].isDigit()) throw IllegalArgumentException("Incorrect input expression")
+            sum += k * (a.toIntOrNull() ?: throw IllegalArgumentException("Incorrect input expression"))
         } else {
             k = when (a) {
                 "+" -> 1
                 else -> -1
             }
         }
-        f = !f
+        noNow = !noNow
     }
-    if (!f) return sum else throw IllegalArgumentException()
+    if (!noNow) return sum else throw IllegalArgumentException("Incorrect input expression")
 }
 
 /**
