@@ -294,33 +294,31 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun correctBrackets(str: String, brackets: MutableMap<Int, Int>): Boolean {
-    val keys = mutableListOf<Int>()
-    for (i in str.indices) {
+fun getKey(map: MutableMap<Int, Int>, n: Int): Int {
+    for ((key, value) in map)
+        if (n == value) return key
+    return -1
+}
+
+fun correctBrackets(str: String): MutableMap<Int, Int> {
+    val brackets = mutableMapOf<Int, Int>()
+    val openBrack = ArrayDeque<Int>()
+    for (i in str.indices)
         when (str[i]) {
-            '[' -> {
-                keys.add(i)
-                brackets[i] = -1
-            }
+            '[' -> openBrack.addLast(i)
             ']' -> {
-                if (keys.size * 2 == brackets.size) return false
-                for (j in keys.size - 1 downTo 0) {
-                    val key = keys[j]
-                    if (brackets[key] == -1) {
-                        brackets[key] = i
-                        brackets[i] = key
-                        break
-                    }
-                }
+                val el = openBrack.lastOrNull() ?: throw IllegalArgumentException("Incorrect input expression")
+                brackets[el] = i
+                openBrack.removeLast()
             }
         }
-    }
-    return !brackets.containsValue(-1)
+    if (openBrack.isNotEmpty()) throw IllegalArgumentException("Incorrect input expression")
+    return brackets
 }
 
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
-    val brackets = mutableMapOf<Int, Int>()
-    if (!commands.matches(Regex("""[\[\]+\-<> ]*""")) || !correctBrackets(commands, brackets))
+    val brackets = correctBrackets(commands)
+    if (!commands.matches(Regex("""[\[\]+\-<> ]*""")))
         throw IllegalArgumentException("Incorrect input expression")
     val list = MutableList(cells) { 0 }
     var ind = cells / 2
@@ -332,8 +330,8 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             '-' -> list[ind]--
             '>' -> ind++
             '<' -> ind--
-            '[' -> if (list[ind] == 0) comd = brackets[comd]!!
-            ']' -> if (list[ind] != 0) comd = brackets[comd]!!
+            '[' -> if (list[ind] == 0) comd = brackets[comd] ?: error("")
+            ']' -> if (list[ind] != 0) comd = getKey(brackets, comd)
         }
         if (ind !in 0 until cells) throw IllegalStateException("Cells index out of bounds")
         comd++
