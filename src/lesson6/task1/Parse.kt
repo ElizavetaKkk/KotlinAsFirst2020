@@ -83,14 +83,12 @@ fun dateStrToDigit(str: String): String {
     )
     if (!str.matches(Regex("""\d+ [а-я]+ \d+"""))) return ""
     val list = str.split(" ")
-    return if (list.size != 3) ""
-    else {
-        val day = list[0].toInt()
-        val month = map[list[1]] ?: return ""
-        val year = list[2].toInt()
-        if (day !in 1..daysInMonth(month, year)) ""
-        else String.format("%02d.%02d.%d", day, month, year)
-    }
+    if (list.size != 3) return ""
+    val day = list[0].toInt()
+    val month = map[list[1]] ?: return ""
+    val year = list[2].toInt()
+    if (day !in 1..daysInMonth(month, year)) return ""
+    return String.format("%02d.%02d.%d", day, month, year)
 }
 
 /**
@@ -110,15 +108,13 @@ fun dateDigitToStr(digital: String): String {
     )
     if (!digital.matches(Regex("""(\d{2})\.(\d{2})\.(\d+)"""))) return ""
     val list = digital.split(".")
-    return if (list.size != 3) ""
-    else {
-        val day = list[0].toIntOrNull() ?: return ""
-        val monthN = list[1].toIntOrNull() ?: return ""
-        val month = map[monthN] ?: return ""
-        val year = list[2].toIntOrNull() ?: return ""
-        if (day !in 1..daysInMonth(monthN, year)) ""
-        else "$day $month $year"
-    }
+    if (list.size != 3) return ""
+    val day = list[0].toIntOrNull() ?: return ""
+    val monthN = list[1].toIntOrNull() ?: return ""
+    val month = map[monthN] ?: return ""
+    val year = list[2].toIntOrNull() ?: return ""
+    return if (day !in 1..daysInMonth(monthN, year)) ""
+    else "$day $month $year"
 }
 
 /**
@@ -180,7 +176,7 @@ fun bestHighJump(jumps: String): Int {
     var b = -1
     for (a in list) {
         when (a.toIntOrNull()) {
-            null -> if (a.contains('+') && b > max) max = b
+            null -> if ('+' in a && b > max) max = b
             else -> b = a.toInt()
         }
     }
@@ -197,7 +193,7 @@ fun bestHighJump(jumps: String): Int {
  * Про нарушении формата входной строки бросить исключение IllegalArgumentException
  */
 fun plusMinus(expression: String): Int {
-    if (!expression.matches(Regex("""[\d-+ ]*""")) || expression.matches(Regex("""\s*""")))
+    if (!expression.matches(Regex("""\d+(\s[+\-]\s\d+)*""")))
         throw IllegalArgumentException("Incorrect input expression")
     val list = expression.split(" ")
     var noNow = true
@@ -205,10 +201,8 @@ fun plusMinus(expression: String): Int {
     var k = 1
     for (i in list.indices) {
         val a = list[i]
-        if (noNow) {
-            if (!a[0].isDigit()) throw IllegalArgumentException("Incorrect input expression")
-            sum += k * (a.toIntOrNull() ?: throw IllegalArgumentException("Incorrect input expression"))
-        } else {
+        if (noNow) sum += k * (a.toIntOrNull() ?: throw IllegalArgumentException("Incorrect input expression"))
+        else {
             k = when (a) {
                 "+" -> 1
                 else -> -1
@@ -300,29 +294,34 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun correctBrackets(str: String): Boolean {
-    var n = 0
-    for (el in str)
-        when (el) {
-            '[' -> n++
-            ']' -> if (n > 0) n-- else return false
+fun correctBrackets(str: String, brackets: MutableMap<Int, Int>): Boolean {
+    val keys = mutableListOf<Int>()
+    for (i in str.indices) {
+        when (str[i]) {
+            '[' -> {
+                keys.add(i)
+                brackets[i] = -1
+            }
+            ']' -> {
+                if (keys.size * 2 == brackets.size) return false
+                for (j in keys.size - 1 downTo 0) {
+                    val key = keys[j]
+                    if (brackets[key] == -1) {
+                        brackets[key] = i
+                        brackets[i] = key
+                        break
+                    }
+                }
+            }
         }
-    return n == 0
-}
-
-fun findBracket(commands: String, a: Char, b: Char): Int {
-    var brack = 0
-    for (i in commands.indices)
-        when (commands[i]) {
-            a -> brack++
-            b -> if (brack > 1) brack-- else return i
-        }
-    return 0
+    }
+    return !brackets.containsValue(-1)
 }
 
 fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
-    if (!commands.matches(Regex("""[\[\]+\-<> ]*""")) || !correctBrackets(commands))
-        throw IllegalArgumentException()
+    val brackets = mutableMapOf<Int, Int>()
+    if (!commands.matches(Regex("""[\[\]+\-<> ]*""")) || !correctBrackets(commands, brackets))
+        throw IllegalArgumentException("Incorrect input expression")
     val list = MutableList(cells) { 0 }
     var ind = cells / 2
     var comd = 0
@@ -333,10 +332,10 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             '-' -> list[ind]--
             '>' -> ind++
             '<' -> ind--
-            '[' -> if (list[ind] == 0) comd += findBracket(commands.substring(comd), '[', ']')
-            ']' -> if (list[ind] != 0) comd -= findBracket(commands.substring(0, comd + 1).reversed(), ']', '[')
+            '[' -> if (list[ind] == 0) comd = brackets[comd]!!
+            ']' -> if (list[ind] != 0) comd = brackets[comd]!!
         }
-        if (ind !in 0 until cells) throw IllegalStateException()
+        if (ind !in 0 until cells) throw IllegalStateException("Cells index out of bounds")
         comd++
         comdLim++
     }
