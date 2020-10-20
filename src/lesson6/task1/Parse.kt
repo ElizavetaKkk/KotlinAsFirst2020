@@ -294,22 +294,16 @@ fun fromRoman(roman: String): Int = TODO()
  * IllegalArgumentException должен бросаться даже если ошибочная команда не была достигнута в ходе выполнения.
  *
  */
-fun getKey(map: MutableMap<Int, Int>, n: Int): Int {
-    for ((key, value) in map)
-        if (n == value) return key
-    return -1
-}
-
-fun correctBrackets(str: String): MutableMap<Int, Int> {
+fun correctBrackets(str: String): Map<Int, Int> {
     val brackets = mutableMapOf<Int, Int>()
     val openBrack = ArrayDeque<Int>()
     for (i in str.indices)
         when (str[i]) {
             '[' -> openBrack.addLast(i)
             ']' -> {
-                val el = openBrack.lastOrNull() ?: throw IllegalArgumentException("Incorrect input expression")
+                val el = openBrack.removeLastOrNull() ?: throw IllegalArgumentException("Incorrect input expression")
                 brackets[el] = i
-                openBrack.removeLast()
+                brackets[i] = el
             }
         }
     if (openBrack.isNotEmpty()) throw IllegalArgumentException("Incorrect input expression")
@@ -330,8 +324,8 @@ fun computeDeviceCells(cells: Int, commands: String, limit: Int): List<Int> {
             '-' -> list[ind]--
             '>' -> ind++
             '<' -> ind--
-            '[' -> if (list[ind] == 0) comd = brackets[comd] ?: error("")
-            ']' -> if (list[ind] != 0) comd = getKey(brackets, comd)
+            '[' -> if (list[ind] == 0) comd = brackets[comd] ?: error("No closing bracket")
+            ']' -> if (list[ind] != 0) comd = brackets[comd] ?: error("No opening bracket")
         }
         if (ind !in 0 until cells) throw IllegalStateException("Cells index out of bounds")
         comd++
