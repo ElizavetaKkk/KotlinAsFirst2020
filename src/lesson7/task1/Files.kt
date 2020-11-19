@@ -4,6 +4,7 @@ package lesson7.task1
 
 import lesson5.task1.removeFillerWords
 import java.io.File
+import kotlin.math.pow
 
 // Урок 7: работа с файлами
 // Урок интегральный, поэтому его задачи имеют сильно увеличенную стоимость
@@ -568,8 +569,61 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
  * - Списки, отделённые друг от друга пустой строкой, являются разными и должны оказаться в разных параграфах выходного файла.
  *
  */
+
 fun markdownToHtml(inputName: String, outputName: String) {
-    TODO()
+    val reader = File(inputName).bufferedReader().readLines()
+    val writer = File(outputName).bufferedWriter()
+    val stack = ArrayDeque<String>()
+    writer.write("<html><body>")
+    var level = -1
+    reader.forEach {
+        if (!it.matches(Regex("""\s*"""))) {
+            if (stack.isEmpty()) {
+                writer.write("<p>")
+                stack.addLast("</p>")
+            }
+            val str = it.trim()
+            val spaces = it.length - str.length
+            if (spaces % 4 == 0) {
+                val actLevel = spaces / 4
+                if (str[0] == '*' || Regex("""\d+.""").find(str)?.range?.first == 0) {
+                    when {
+                        actLevel > level -> {
+                            if (str[0] == '*') {
+                                writer.write("<ul><li>" + toHtml(str.substring(2)))
+                                stack.addLast("</ul>")
+                            } else {
+                                writer.write("<ol><li>" + toHtml(str.substring(str.indexOf(".") + 2)))
+                                stack.addLast("</ol>")
+                            }
+                            stack.addLast("</li>")
+                            level++
+                        }
+                        actLevel == level -> {
+                            writer.write("</li><li>")
+                            if (str[0] == '*') writer.write(toHtml(str.substring(2)))
+                            else writer.write(toHtml(str.substring(str.indexOf(".") + 2)))
+                        }
+                        else -> {
+                            writer.write(stack.removeLast() + stack.removeLast() + stack.removeLast() + "<li>")
+                            if (str[0] == '*') writer.write(toHtml(str.substring(2)))
+                            else writer.write(toHtml(str.substring(str.indexOf(".") + 2)))
+                            stack.addLast("</li>")
+                            level--
+                        }
+                    }
+                } else {
+                    writer.write(toHtml(str))
+                }
+            }
+        } else {
+            while (stack.isNotEmpty()) writer.write(stack.removeLast())
+            level = -1
+        }
+    }
+    while (stack.isNotEmpty()) writer.write(stack.removeLast())
+    writer.write("</body></html>")
+    writer.close()
 }
 
 /**
