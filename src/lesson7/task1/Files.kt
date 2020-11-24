@@ -393,6 +393,7 @@ fun toHtml(
 
 fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val reader = File(inputName).bufferedReader().readLines()
+        .dropWhile { it.matches(Regex("""\s*""")) }.dropLastWhile { it.matches(Regex("""\s*""")) }
     val writer = File(outputName).bufferedWriter()
     val stack = ArrayDeque<String>()
     writer.write("<html><body><p>")
