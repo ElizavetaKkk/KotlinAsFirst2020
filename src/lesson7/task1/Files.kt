@@ -399,11 +399,14 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     writer.write("<html><body><p>")
     val openingSigns = mapOf("**" to "<b>", "*" to "<i>", "~~" to "<s>")
     val closingSigns = mapOf("**" to "</b>", "*" to "</i>", "~~" to "</s>")
+    var newPar = true
     reader.forEach {
         if (!it.matches(Regex("""\s*"""))) {
             writer.write(toHtml(it, openingSigns, closingSigns, stack))
-        } else {
+            newPar = true
+        } else if (newPar) {
             writer.write("</p><p>")
+            newPar = false
         }
     }
     while (stack.isNotEmpty()) writer.write(stack.removeLast())
