@@ -3,6 +3,7 @@
 package lesson7.task1
 
 import lesson5.task1.removeFillerWords
+import java.io.BufferedWriter
 import java.io.File
 import kotlin.math.pow
 
@@ -88,9 +89,9 @@ fun countSubstrings(inputName: String, substrings: List<String>): Map<String, In
     val subs = substrings.toSet()
     for (el in subs) res[el] = 0
     File(inputName).bufferedReader().forEachLine {
+        val itLC = it.toLowerCase()
         for (el in subs) {
             val elLC = el.toLowerCase()
-            val itLC = it.toLowerCase()
             var ind = itLC.indexOf(elLC)
             var count = 0
             while (ind != -1) {
@@ -144,8 +145,8 @@ fun centerFile(inputName: String, outputName: String) {
     val max = reader.maxOfOrNull { it.trim().length } ?: return writer.close()
     reader.forEach() {
         val trimIt = it.trim()
-        for (i in 1..(max - trimIt.length) / 2) writer.write(" ")
-        writer.appendLine(trimIt)
+        //for (i in 1..(max - trimIt.length) / 2) writer.write(" ")
+        writer.appendLine(" ".repeat((max - trimIt.length) / 2) + trimIt)
     }
     writer.close()
 }
@@ -351,7 +352,7 @@ Suspendisse <s>et elit in enim tempus iaculis</s>.
  *
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
-fun nextSign(s: String, signs: Set<String>): Pair<String, Int> {
+fun nextSign(s: String, signs: List<String>): Pair<String, Int> {
     var id = s.length
     var sign = ""
     for (el in signs) {
@@ -364,30 +365,26 @@ fun nextSign(s: String, signs: Set<String>): Pair<String, Int> {
     return sign to id
 }
 
-fun toHtml(s: String): String {
-    val openingSigns = mapOf("**" to "<b>", "*" to "<i>", "~~" to "<s>")
-    val closingSigns = mapOf("**" to "</b>", "*" to "</i>", "~~" to "</s>")
-    val stack = ArrayDeque<String>()
+fun toHtml(
+    s: String,
+    openingSigns: Map<String, String>,
+    closingSigns: Map<String, String>,
+    stack: ArrayDeque<String>
+): String {
     val line = StringBuilder(s)
-    var pair = nextSign(s, openingSigns.keys)
+    val keys = openingSigns.keys.toList()
+    var pair = nextSign(s, keys)
     var sign = pair.first
     var signId = pair.second
     while (sign != "") {
-        var tag: String?
-        when {
-            stack.isNotEmpty() && stack.last() == sign -> tag = closingSigns[stack.removeLast()]
-            stack.isNotEmpty() && stack.contains(sign) -> {
-                sign = stack.last()
-                tag = closingSigns[stack.removeLast()]
-            }
-            else -> {
-                stack.addLast(sign)
-                tag = openingSigns[sign]
-            }
+        val tag: String? = if (stack.isNotEmpty() && stack.last() == sign) closingSigns[stack.removeLast()]
+        else {
+            stack.addLast(sign)
+            openingSigns[sign]
         }
         line.replace(signId, signId + sign.length, tag)
         signId += tag?.length ?: 0
-        pair = nextSign(line.substring(signId), openingSigns.keys)
+        pair = nextSign(line.substring(signId), keys)
         sign = pair.first
         signId += pair.second
     }
@@ -399,13 +396,15 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     writer.write("<html><body>")
     val stack = ArrayDeque<String>()
+    val openingSigns = mapOf("**" to "<b>", "*" to "<i>", "~~" to "<s>")
+    val closingSigns = mapOf("**" to "</b>", "*" to "</i>", "~~" to "</s>")
     reader.forEach {
         if (!it.matches(Regex("""\s*"""))) {
             if (stack.isEmpty()) {
                 writer.write("<p>")
                 stack.addLast("</p>")
             }
-            writer.write(toHtml(it))
+            writer.write(toHtml(it, openingSigns, closingSigns, stack))
         } else if (stack.isNotEmpty() && stack.last() == "</p>") {
             writer.write(stack.removeLast())
         }
@@ -512,6 +511,32 @@ fun markdownToHtmlSimple(inputName: String, outputName: String) {
 ///////////////////////////////конец файла//////////////////////////////////////////////////////////////////////////////
  * (Отступы и переносы строк в примере добавлены для наглядности, при решении задачи их реализовывать не обязательно)
  */
+fun levels(level: Int, actLevel: Int, ch: Char, stack: ArrayDeque<String>, writer: BufferedWriter): Int {
+    var lvl = level
+    when {
+        actLevel > level -> {
+            if (ch == '*') {
+                writer.write("<ul><li>")
+                stack.addLast("</ul>")
+            } else {
+                writer.write("<ol><li>")
+                stack.addLast("</ol>")
+            }
+            stack.addLast("</li>")
+            lvl++
+        }
+        actLevel == level -> {
+            writer.write("</li><li>")
+        }
+        else -> {
+            writer.write(stack.removeLast() + stack.removeLast() + stack.removeLast() + "<li>")
+            stack.addLast("</li>")
+            lvl--
+        }
+    }
+    return lvl
+}
+
 fun markdownToHtmlLists(inputName: String, outputName: String) {
     val reader = File(inputName).bufferedReader().readLines()
     val writer = File(outputName).bufferedWriter()
@@ -521,31 +546,10 @@ fun markdownToHtmlLists(inputName: String, outputName: String) {
     reader.forEach {
         val str = it.trim()
         val actLevel = (it.length - str.length) / 4
-        when {
-            actLevel > level -> {
-                if (str[0] == '*') {
-                    writer.write("<ul><li>" + str.substring(2))
-                    stack.addLast("</ul>")
-                } else {
-                    writer.write("<ol><li>" + str.substring(str.indexOf(".") + 2))
-                    stack.addLast("</ol>")
-                }
-                stack.addLast("</li>")
-                level++
-            }
-            actLevel == level -> {
-                writer.write("</li><li>")
-                if (str[0] == '*') writer.write(str.substring(2))
-                else writer.write(str.substring(str.indexOf(".") + 2))
-            }
-            else -> {
-                writer.write(stack.removeLast() + stack.removeLast() + stack.removeLast() + "<li>")
-                if (str[0] == '*') writer.write(str.substring(2))
-                else writer.write(str.substring(str.indexOf(".") + 2))
-                stack.addLast("</li>")
-                level--
-            }
-        }
+        val s = if (str[0] == '*') str.substring(2)
+        else str.substring(str.indexOf(".") + 2)
+        level = levels(level, actLevel, str[0], stack, writer)
+        writer.write(s)
     }
     while (stack.isNotEmpty()) writer.write(stack.removeLast())
     writer.write("</p></body></html>")
@@ -565,6 +569,8 @@ fun markdownToHtml(inputName: String, outputName: String) {
     val reader = File(inputName).bufferedReader().readLines()
     val writer = File(outputName).bufferedWriter()
     val stack = ArrayDeque<String>()
+    val openingSigns = mapOf("**" to "<b>", "*" to "<i>", "~~" to "<s>")
+    val closingSigns = mapOf("**" to "</b>", "*" to "</i>", "~~" to "</s>")
     writer.write("<html><body>")
     var level = -1
     reader.forEach {
@@ -578,33 +584,12 @@ fun markdownToHtml(inputName: String, outputName: String) {
             if (spaces % 4 == 0) {
                 val actLevel = spaces / 4
                 if (str[0] == '*' || Regex("""\d+.""").find(str)?.range?.first == 0) {
-                    when {
-                        actLevel > level -> {
-                            if (str[0] == '*') {
-                                writer.write("<ul><li>" + toHtml(str.substring(2)))
-                                stack.addLast("</ul>")
-                            } else {
-                                writer.write("<ol><li>" + toHtml(str.substring(str.indexOf(".") + 2)))
-                                stack.addLast("</ol>")
-                            }
-                            stack.addLast("</li>")
-                            level++
-                        }
-                        actLevel == level -> {
-                            writer.write("</li><li>")
-                            if (str[0] == '*') writer.write(toHtml(str.substring(2)))
-                            else writer.write(toHtml(str.substring(str.indexOf(".") + 2)))
-                        }
-                        else -> {
-                            writer.write(stack.removeLast() + stack.removeLast() + stack.removeLast() + "<li>")
-                            if (str[0] == '*') writer.write(toHtml(str.substring(2)))
-                            else writer.write(toHtml(str.substring(str.indexOf(".") + 2)))
-                            stack.addLast("</li>")
-                            level--
-                        }
-                    }
+                    val s = if (str[0] == '*') str.substring(2)
+                    else str.substring(str.indexOf(".") + 2)
+                    level = levels(level, actLevel, str[0], stack, writer)
+                    writer.write(toHtml(s, openingSigns, closingSigns, stack))
                 } else {
-                    writer.write(toHtml(str))
+                    writer.write(toHtml(str, openingSigns, closingSigns, stack))
                 }
             }
         } else {
