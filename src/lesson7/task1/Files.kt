@@ -68,7 +68,7 @@ fun alignFile(inputName: String, lineLength: Int, outputName: String) {
 fun deleteMarked(inputName: String, outputName: String) {
     val writer = File(outputName).bufferedWriter()
     File(inputName).bufferedReader().forEachLine {
-        if (it.isEmpty() || it[0] != '_') writer.appendLine(it)
+        if (it.isEmpty() || !it.startsWith('_')) writer.appendLine(it)
     }
     writer.close()
 }
@@ -143,7 +143,6 @@ fun centerFile(inputName: String, outputName: String) {
     val max = reader.maxOfOrNull { it.trim().length } ?: return writer.close()
     reader.forEach() {
         val trimIt = it.trim()
-        //for (i in 1..(max - trimIt.length) / 2) writer.write(" ")
         writer.appendLine(" ".repeat((max - trimIt.length) / 2) + trimIt)
     }
     writer.close()
