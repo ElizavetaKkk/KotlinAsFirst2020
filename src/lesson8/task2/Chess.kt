@@ -29,7 +29,7 @@ data class Square(val column: Int, val row: Int) {
      * Для клетки не в пределах доски вернуть пустую строку
      */
     fun notation(): String =
-        if (inside()) '`' + column + row.toString()
+        if (inside()) 'a' - 1 + column + row.toString()
         else ""
 }
 
@@ -42,7 +42,7 @@ data class Square(val column: Int, val row: Int) {
  */
 fun square(notation: String): Square =
     if (notation.matches(Regex("""^[a-h][1-8]$""")))
-        Square(notation[0] - '`', notation[1] - '0')
+        Square(notation[0] - 'a' + 1, notation[1] - '0')
     else throw IllegalArgumentException("Invalid input data")
 
 /**
