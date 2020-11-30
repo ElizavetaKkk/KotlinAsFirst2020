@@ -246,7 +246,11 @@ fun kingTrajectory(start: Square, end: Square): List<Square> {
  * Конь может последовательно пройти через клетки (5, 2) и (4, 4) к клетке (6, 3).
  */
 fun knightMoveNumber(start: Square, end: Square): Int =
-    if (start == end) 0 else knightTrajectory(start, end).size - 1
+    when {
+        !start.inside() || !end.inside() -> throw IllegalArgumentException("Invalid input data")
+        start == end -> 0
+        else -> knightTrajectory(start, end).size - 1
+    }
 
 /**
  * Очень сложная (10 баллов)
