@@ -29,7 +29,7 @@ data class Square(val column: Int, val row: Int) {
      * Для клетки не в пределах доски вернуть пустую строку
      */
     fun notation(): String =
-        if (inside()) (column + 96).toChar() + row.toString()
+        if (inside()) '`' + column + row.toString()
         else ""
 }
 
@@ -42,7 +42,7 @@ data class Square(val column: Int, val row: Int) {
  */
 fun square(notation: String): Square =
     if (notation.matches(Regex("""^[a-h][1-8]$""")))
-        Square(notation[0].toInt() - 96, notation[1].toInt() - 48)
+        Square(notation[0] - '`', notation[1] - '0')
     else throw IllegalArgumentException("Invalid input data")
 
 /**
@@ -245,36 +245,7 @@ fun kingTrajectory(start: Square, end: Square): List<Square> {
  * Пример: knightMoveNumber(Square(3, 1), Square(6, 3)) = 3.
  * Конь может последовательно пройти через клетки (5, 2) и (4, 4) к клетке (6, 3).
  */
-fun knightMoveNumber(start: Square, end: Square): Int {
-    if (!start.inside() || !end.inside()) throw IllegalArgumentException("Invalid input data")
-    if (start == end) return 0
-    val dist = mutableMapOf(Pair(start, 0))
-    val stack = ArrayDeque<Square>()
-    stack.addLast(start)
-    while (stack.isNotEmpty()) {
-        val square = stack.removeFirst()
-        for (neighbor in neighbors(square)) {
-            if (neighbor in dist) continue
-            stack.addLast(neighbor)
-            dist[neighbor] = dist[square]!! + 1
-            if (neighbor == end) return dist[neighbor]!!
-        }
-    }
-    return -1
-}
-
-fun neighbors(square: Square): List<Square> {
-    val ans = mutableListOf<Square>()
-    for (i in 2 downTo -2)
-        if (i != 0) {
-            val j = if (i % 2 == 0) 1 else 2
-            val sq1 = Square(square.column + i, square.row + j)
-            val sq2 = Square(square.column + i, square.row - j)
-            if (sq1.inside()) ans.add(sq1)
-            if (sq2.inside()) ans.add(sq2)
-        }
-    return ans
-}
+fun knightMoveNumber(start: Square, end: Square): Int = knightTrajectory(start, end).size
 
 /**
  * Очень сложная (10 баллов)
@@ -314,14 +285,22 @@ fun knightTrajectory(start: Square, end: Square): List<Square> {
     return listOf()
 }
 
-fun path(
-    start: Square,
-    end: Square,
-    list: MutableList<Square>,
-    prCells: MutableMap<Square, Square>
-): List<Square> {
+fun neighbors(square: Square): List<Square> {
+    val ans = mutableListOf<Square>()
+    for (i in 2 downTo -2)
+        if (i != 0) {
+            val j = if (i % 2 == 0) 1 else 2
+            val sq1 = Square(square.column + i, square.row + j)
+            val sq2 = Square(square.column + i, square.row - j)
+            if (sq1.inside()) ans.add(sq1)
+            if (sq2.inside()) ans.add(sq2)
+        }
+    return ans
+}
+
+fun path(start: Square, end: Square, list: MutableList<Square>, prCells: Map<Square, Square>): List<Square> {
     if (start != end) {
-        val sq = prCells[end]!!
+        val sq = prCells[end] ?: error("Lack of data about the previous move")
         list.add(sq)
         path(start, sq, list, prCells)
     } else list.reverse()
