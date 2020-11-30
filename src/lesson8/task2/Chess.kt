@@ -245,7 +245,8 @@ fun kingTrajectory(start: Square, end: Square): List<Square> {
  * Пример: knightMoveNumber(Square(3, 1), Square(6, 3)) = 3.
  * Конь может последовательно пройти через клетки (5, 2) и (4, 4) к клетке (6, 3).
  */
-fun knightMoveNumber(start: Square, end: Square): Int = knightTrajectory(start, end).size
+fun knightMoveNumber(start: Square, end: Square): Int =
+    if (start == end) 0 else knightTrajectory(start, end).size - 1
 
 /**
  * Очень сложная (10 баллов)
